@@ -1,0 +1,362 @@
+{
+	"info": {
+		"_postman_id": "1aaf3988-ce08-44c0-b4f0-b51af2a0d77d",
+		"name": "RFBDynamic",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29218515",
+		"_collection_link": "https://martian-zodiac-156970.postman.co/workspace/Ajij-Khan-Workspace~e857bd78-fc55-43a6-8382-87b041bd7fae/collection/29218515-1aaf3988-ce08-44c0-b4f0-b51af2a0d77d?action=share&source=collection_link&creator=29218515"
+	},
+	"item": [
+		{
+			"name": "Create Booking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json();\r",
+							"\r",
+							"pm.environment.set(\"id\", jsonData.bookingid);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let firstName = pm.variables.replaceIn(\"{{$randomFirstName}}\");\r",
+							"let lastName = pm.variables.replaceIn(\"{{$randomLastName}}\");\r",
+							"let totalPrice = pm.variables.replaceIn(\"{{$randomInt}}\");\r",
+							"let depositPaid = pm.variables.replaceIn(\"{{$randomBoolean}}\");\r",
+							"let additionalNeeds = pm.variables.replaceIn(\"{{$randomLoremWord}}\");\r",
+							"\r",
+							"const moment = require('moment')\r",
+							"const today = moment();\r",
+							"// const chekin = today.add(5, \"d\").format(\"YYYY-MM-DD\");\r",
+							"\r",
+							"pm.environment.set(\"firstName\",firstName);\r",
+							"pm.environment.set(\"lastName\",lastName);\r",
+							"pm.environment.set(\"totalPrice\",totalPrice);\r",
+							"pm.environment.set(\"depositPaid\",depositPaid);\r",
+							"pm.environment.set(\"checkin\",today.format(\"YYYY-MM-DD\"));\r",
+							"pm.environment.set(\"checkout\",today.add(8, \"d\").format(\"YYYY-MM-DD\"));\r",
+							"pm.environment.set(\"additionalNeeds\", additionalNeeds);\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"firstname\" : \"{{firstName}}\",\r\n\t\"lastname\" : \"{{lastName}}\",\r\n\t\"totalprice\" : {{totalPrice}},\r\n\t\"depositpaid\" : {{depositPaid}},\r\n\t\"bookingdates\" : {\r\n    \t\"checkin\" : \"{{checkin}}\",\r\n    \t\"checkout\" : \"{{checkout}}\"\r\n\t},\r\n\t\"additionalneeds\" : \"{{additionalNeeds}}\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_URL}}/booking",
+					"host": [
+						"{{base_URL}}"
+					],
+					"path": [
+						"booking"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Booking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const statusCode = pm.response.code;\r",
+							"\r",
+							"\r",
+							"if(statusCode == 200){\r",
+							"\r",
+							"    let jsonData = pm.response.json();\r",
+							"\r",
+							"    pm.test(\"Verify that First Name of booking API working properly\", function(){\r",
+							"        pm.expect(jsonData.firstname).to.eql(pm.environment.get(\"firstName\"))\r",
+							"    })\r",
+							"\r",
+							"    pm.test(\"Verify that Last Name of booking API working properly\", function(){\r",
+							"        pm.expect(jsonData.lastname).to.eql(pm.environment.get(\"lastName\"))\r",
+							"    })\r",
+							"\r",
+							"    pm.test(\"Verify that Total Price of booking API working properly\", function(){\r",
+							"        pm.expect(String(jsonData.totalprice)).to.eql(pm.environment.get(\"totalPrice\"))\r",
+							"    })\r",
+							"\r",
+							"    pm.test(\"Verify that Deposit Paid of booking API working properly\", function(){\r",
+							"        pm.expect(String(jsonData.depositpaid)).to.eql(pm.environment.get(\"depositPaid\"))\r",
+							"    })\r",
+							"\r",
+							"    pm.test(\"Verify that Cehckin of booking API working properly\", function(){\r",
+							"        pm.expect(jsonData.bookingdates.checkin).to.eql(pm.environment.get(\"checkin\"))\r",
+							"    })\r",
+							"\r",
+							"    pm.test(\"Verify that Cehckout of booking API working properly\", function(){\r",
+							"        pm.expect(jsonData.bookingdates.checkout).to.eql(pm.environment.get(\"checkout\"))\r",
+							"    })\r",
+							"\r",
+							"    pm.test(\"Verify that Additional Needs of booking API working properly\", function(){\r",
+							"        pm.expect(jsonData.additionalneeds).to.eql(pm.environment.get(\"additionalNeeds\"))\r",
+							"    })\r",
+							"}\r",
+							"\r",
+							"else if(statusCode == 400){\r",
+							"    pm.test(\"Bad Request/Syntax Error in client request\", function(){\r",
+							"        pm.response.to.have.status(401)\r",
+							"    })\r",
+							"}\r",
+							"\r",
+							"else if(statusCode == 401){\r",
+							"    pm.test(\"Unauthorized/Authentication Error\", function(){\r",
+							"        pm.response.to.have.status(401)\r",
+							"    })\r",
+							"}\r",
+							"\r",
+							"else if(statusCode == 404){\r",
+							"    pm.test(\"404 NOF FOUND\", function(){\r",
+							"        pm.response.to.have.status(404)\r",
+							"    })\r",
+							"}\r",
+							"\r",
+							"\r",
+							"else if(statusCode == 500){\r",
+							"    pm.test(\"Internal Server Error\", function(){\r",
+							"        pm.response.to.have.status(500)\r",
+							"    })\r",
+							"}\r",
+							"\r",
+							"else{\r",
+							"    pm.test(\"Something is wrong...\");\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_URL}}/booking/{{id}}",
+					"host": [
+						"{{base_URL}}"
+					],
+					"path": [
+						"booking",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AuthToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json();\r",
+							"\r",
+							"pm.environment.set(\"token\", jsonData.token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"username\": \"admin\",\r\n\t\"password\": \"password123\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_URL}}/auth",
+					"host": [
+						"{{base_URL}}"
+					],
+					"path": [
+						"auth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Booking",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let updatedFirstName = pm.environment.replaceIn(\"{{$randomFirstName}}\")\r",
+							"let updatedLastName = pm.environment.replaceIn(\"{{$randomFirstName}}\")\r",
+							"let updatedTotalPrice = pm.environment.replaceIn(\"{{$randomInt}}\")\r",
+							"let updatedDepositPaid = pm.environment.replaceIn(\"{{$randomBoolean}}\")\r",
+							"let updatedAdditionalNeeds = pm.environment.replaceIn(\"{{$randomLoremWord}}\")\r",
+							"\r",
+							"const moment = require('moment');\r",
+							"const today = moment();\r",
+							"\r",
+							"pm.environment.set(\"updatedFirstName\", updatedFirstName);\r",
+							"pm.environment.set(\"updatedLastName\", updatedLastName);\r",
+							"pm.environment.set(\"updatedTotalPrice\", updatedTotalPrice);\r",
+							"pm.environment.set(\"updatedDepositPaid\", updatedDepositPaid);\r",
+							"pm.environment.set(\"updatedAdditionalNeeds\", updatedAdditionalNeeds);\r",
+							"pm.environment.set(\"updatedCheckin\", today.add(10, \"d\").format(\"YYYY-MM-DD\"));\r",
+							"pm.environment.set(\"updatedCheckout\", today.add(15, \"d\").format(\"YYYY-MM-DD\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"firstname\" : \"{{updatedFirstName}}\",\r\n\t\"lastname\" : \"{{updatedLastName}}\",\r\n\t\"totalprice\" : {{updatedTotalPrice}},\r\n\t\"depositpaid\" : {{updatedDepositPaid}},\r\n\t\"bookingdates\" : {\r\n    \t\"checkin\" : \"{{updatedCheckin}}\",\r\n    \t\"checkout\" : \"{{updatedCheckout}}\"\r\n\t},\r\n\t\"additionalneeds\" : \"{{updatedAdditionalNeeds}}\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_URL}}/booking/{{id}}",
+					"host": [
+						"{{base_URL}}"
+					],
+					"path": [
+						"booking",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Updated Booking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const statusCode = pm.response.code;\r",
+							"\r",
+							"if(statusCode == 200){\r",
+							"    const jsonData = pm.response.json();\r",
+							"\r",
+							"    pm.test(\"Verify that Updated First Name of booking API working properly\", function(){\r",
+							"        pm.expect(jsonData.firstname).to.eql(pm.environment.get(\"updatedFirstName\"));\r",
+							"    })\r",
+							"\r",
+							"    pm.test(\"Verify that Updated Last Name of booking API working properly\", function(){\r",
+							"        pm.expect(jsonData.lastname).to.eql(pm.environment.get(\"updatedLastName\"));\r",
+							"    })\r",
+							"\r",
+							"    pm.test(\"Verify that Updated Total Price of booking API working properly\", function(){\r",
+							"        pm.expect(String(jsonData.totalprice)).to.eql(pm.environment.get(\"updatedTotalPrice\"))\r",
+							"    })\r",
+							"\r",
+							"    pm.test(\"Verify that Updated Deposit Paid of booking API working properly\", function(){\r",
+							"        pm.expect(String(jsonData.depositpaid)).to.eql(pm.environment.get(\"updatedDepositPaid\"));\r",
+							"    })\r",
+							"\r",
+							"    pm.test(\"Verify that Updated Cehckin of booking API working properly\", function(){\r",
+							"        pm.expect(jsonData.bookingdates.checkin).to.eql(pm.environment.get(\"updatedCheckin\"));\r",
+							"    })\r",
+							"\r",
+							"    pm.test(\"Verify that Updated Cehckout of booking API working properly\", function(){\r",
+							"        pm.expect(jsonData.bookingdates.checkout).to.eql(pm.environment.get(\"updatedCheckout\"));\r",
+							"    })\r",
+							"\r",
+							"    pm.test(\"Verify that Updated Additional Needs of booking API working properly\", function(){\r",
+							"        pm.expect(jsonData.additionalneeds).to.eql(pm.environment.get(\"updatedAdditionalNeeds\"));\r",
+							"    })\r",
+							"}\r",
+							"else if(statusCode == 404){\r",
+							"    pm.test(\"404 NOT FOUND\", function(){\r",
+							"        pm.response.to.have.status(404);\r",
+							"    })\r",
+							"}\r",
+							"else{\r",
+							"    pm.test(\"Something Went Wrong\", function(){\r",
+							"\r",
+							"    })\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_URL}}/booking/{{id}}",
+					"host": [
+						"{{base_URL}}"
+					],
+					"path": [
+						"booking",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Booking",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_URL}}/booking/{{id}}",
+					"host": [
+						"{{base_URL}}"
+					],
+					"path": [
+						"booking",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
